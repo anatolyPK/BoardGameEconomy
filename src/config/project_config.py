@@ -8,11 +8,11 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 
 
-db_echo = os.getenv('DB_ECHO')
-project_name = os.getenv('PROJECT_NAME')
-version = os.getenv('VERSION')
-debug = os.getenv('DEBUG')
-cors = os.getenv('CORS_ALLOWED_ORIGINS')
+db_echo = os.environ['DB_ECHO']
+project_name = os.environ['PROJECT_NAME']
+version = os.environ['VERSION']
+debug = os.environ['DEBUG']
+cors = os.environ['CORS_ALLOWED_ORIGINS']
 
 
 class Settings(BaseSettings):
