@@ -31,7 +31,7 @@ class Base(DeclarativeBase):
         for idx, col in enumerate(self.__table__.columns.keys()):
             if col in self.repr_cols or idx < self.repr_cols_num:
                 cols.append(f'{col}={getattr(self, col)}')
-        return f'<{self.__class__.__name__} {", ".join(cols)}'
+        return f'<{self.__class__.__name__} {", ".join(cols)}>'
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
@@ -61,10 +61,17 @@ class Role(Base):
 class Game(Base):
     __tablename__ = 'game'
 
-    name: Mapped[str] = mapped_column(String(128))
+    name_en: Mapped[str] = mapped_column(String(128))
+    name_ru: Mapped[str] = mapped_column(String(128))
+    description: Mapped[str] = mapped_column(String(2048))
+    image: Mapped[str] = mapped_column(String(256), nullable=True)
+
+    yearpublished: Mapped[int] = mapped_column(nullable=True)
+    minplayers: Mapped[int] = mapped_column(nullable=True)
+    maxplayers: Mapped[int] = mapped_column(nullable=True)
+    playingtime: Mapped[int] = mapped_column(nullable=True)
 
     games_transactions: Mapped[List['GameTransaction']] = relationship(back_populates='game')
-
 
 
 class GameTransaction(Base):

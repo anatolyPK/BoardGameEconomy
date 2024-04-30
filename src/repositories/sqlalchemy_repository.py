@@ -1,8 +1,11 @@
 from typing import Type, TypeVar, Optional, Generic
 
+import sqlalchemy
 from pydantic import BaseModel
 from sqlalchemy import delete, select, update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from models.base import Base
 from repositories.base_repository import AbstractRepository
@@ -34,7 +37,9 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
 
     async def delete(self, **filters) -> None:
         async with self._session() as session:
-            await session.execute(delete(self.model).filter_by(**filters))
+            result = await session.execute(delete(self.model).filter_by(**filters))
+            if result.rowcount == 0:
+                raise NoResultFound("Нет записей, соответствующих предоставленным фильтрам.")
             await session.commit()
 
     async def get_single(self, **filters) -> Optional[ModelType] | None:
@@ -47,9 +52,16 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
             order: str = "id",
             limit: int = 100,
             offset: int = 0,
+            joinedload_type=None,
+            joinedload_column=None,
             **filters
     ) -> list[ModelType]:
         async with self._session() as session:
-            stmt = select(self.model).filter_by(**filters).order_by(order).limit(limit).offset(offset)
+            stmt = select(self.model)
+
+            if joinedload_type and joinedload_column:
+                stmt = stmt.options(joinedload_type(joinedload_column))
+
+            stmt = stmt.filter_by(**filters).order_by(order).limit(limit).offset(offset)
             row = await session.execute(stmt)
             return row.scalars().all()

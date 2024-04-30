@@ -1,19 +1,18 @@
 from fastapi import APIRouter, Depends
 
 
-from schemas.portfolio import GeneralInfo
-from src.models.base import User
-from utils.auth.manager import current_active_user
+from ..schemas.portfolio import GeneralInfoSchema
+from ..services.game_transaction import game_transaction_service
+from ..models.base import User
+from ..utils.auth.manager import current_active_user
 
 
 router = APIRouter(
-    tags=['General Stats'],
+    tags=['Stats'],
 )
 
 
 @router.get("/",
-            response_model=GeneralInfo)
-async def crypto_portfolio(user: User = Depends(current_active_user)):
-    return {'message': 'hello'}
-    # return await crypto_service.get_user_portfolio(user)
-
+            response_model=GeneralInfoSchema)
+async def general_stats(user: User = Depends(current_active_user)):
+    return await game_transaction_service.get_users_game_info(user)

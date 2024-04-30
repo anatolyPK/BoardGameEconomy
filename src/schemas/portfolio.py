@@ -1,17 +1,19 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
-from schemas.transactions import BaseGameTransaction
+from schemas.transactions import BaseGameTransactionSchema, GameTransactionSelectedGameSchema, GameTransactionsSchema
 
 
-class GeneralInfo(BaseModel):
+class GeneralInfoSchema(BaseModel):
     username: str
 
     game_in_stock: int
     average_price_of_game_in_stock: int
     amount_spent: int
 
-    game_transactions: list[BaseGameTransaction]
+    game_transactions: GameTransactionsSchema
 
 
-class Stats:
+class ExtendedStatsSchema:
     ...
