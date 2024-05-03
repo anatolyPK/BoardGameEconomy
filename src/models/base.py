@@ -99,4 +99,3 @@ class GameTransaction(Base):
 
     user: Mapped['User'] = relationship(back_populates='game_transactions')
     game: Mapped['Game'] = relationship(back_populates='games_transactions')
-
