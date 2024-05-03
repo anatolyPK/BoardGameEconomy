@@ -5,6 +5,7 @@ Revises:
 Create Date: 2024-05-03 21:09:38.386440
 
 """
+from datetime import datetime
 from typing import Sequence, Union
 
 from alembic import op
@@ -27,19 +28,20 @@ def upgrade():
     # ваш код для добавления начальных данных
     role_table = sa.table('role',
                           sa.Column('name', sa.String(16), nullable=False),
-                          sa.Column('permission', sa.JSON, nullable=True)
+                          sa.Column('permission', sa.JSON, nullable=True),
+                          sa.Column('created_at', sa.DateTime, nullable=False),  # Ensure to add this line
+                          sa.Column('updated_at', sa.DateTime, nullable=False)  # Ensure to add this line
                           )
 
-    # Добавляйте записи с уникальными именами в таблице
+    current_time = datetime.utcnow()
     op.bulk_insert(role_table,
                    [
-                       {'name': 'Admin', 'permission': {'admin': True}},
-                       {'name': 'User', 'permission': {'admin': False}},
-                       {'name': 'Moderator', 'permission': {'moderate': True}},
-                       # ... добавьте другие роли при необходимости ...
+                       {'name': 'Admin', 'permission': {'admin': True}, 'created_at': current_time, 'updated_at': current_time},
+                       {'name': 'User', 'permission': {'admin': False}, 'created_at': current_time, 'updated_at': current_time},
+                       {'name': 'Moderator', 'permission': {'moderate': True}, 'created_at': current_time, 'updated_at': current_time},
+                       # ... дополнительные записи ...
                    ]
                    )
-
 
 def downgrade() -> None:
     pass
