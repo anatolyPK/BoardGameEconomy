@@ -43,7 +43,6 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 
     username: Mapped[str] = mapped_column(String(16), unique=True)
     role_id: Mapped[int] = mapped_column(ForeignKey('role.id', ondelete='CASCADE'))
-
     role: Mapped['Role'] = relationship(back_populates='users')
     game_transactions: Mapped[List['GameTransaction']] = relationship(back_populates='user')
 
@@ -61,8 +60,8 @@ class Role(Base):
 class Game(Base):
     __tablename__ = 'game'
 
+    bgg_id: Mapped[int] = mapped_column(unique=True)
     name_en: Mapped[str] = mapped_column(String(128))
-    name_ru: Mapped[str] = mapped_column(String(128))
     description: Mapped[str] = mapped_column(String(2048))
     image: Mapped[str] = mapped_column(String(256), nullable=True)
 
@@ -72,6 +71,16 @@ class Game(Base):
     playingtime: Mapped[int] = mapped_column(nullable=True)
 
     games_transactions: Mapped[List['GameTransaction']] = relationship(back_populates='game')
+    names_ru_values: Mapped[List['GameRuName']] = relationship(back_populates="base_game")
+
+
+class GameRuName(Base):
+    __tablename__ = 'game_ru_name'
+
+    name_ru: Mapped[str] = mapped_column(String(128))
+    game_id: Mapped[int] = mapped_column(ForeignKey('game.id'))
+
+    base_game: Mapped['Game'] = relationship(back_populates="names_ru_values")
 
 
 class GameTransaction(Base):

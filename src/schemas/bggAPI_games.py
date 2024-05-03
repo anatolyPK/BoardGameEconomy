@@ -4,8 +4,9 @@ from pydantic import BaseModel, field_validator
 
 
 class GameInfoSchema(BaseModel):
+    bgg_id: int
     name_en: str
-    name_ru: str
+    name_ru: list[str]
     description: str
     image: Optional[str]
 
@@ -27,7 +28,9 @@ class GameInfoSchema(BaseModel):
     @field_validator('name_ru')
     @classmethod
     def validate_name_ru_length(cls, v):
-        return cls.cut_string(v, 128)
+        for numb in range(len(v)):
+            v[numb] = cls.cut_string(v[numb], 128)
+        return v
 
     @field_validator('yearpublished')
     @classmethod
@@ -61,4 +64,3 @@ class GameInfoSchema(BaseModel):
         if len(string) > end:
             return string[:end]
         return string
-
