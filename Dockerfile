@@ -15,3 +15,4 @@ RUN alembic upgrade head
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 
 CMD ["python", "main.py"]
+
