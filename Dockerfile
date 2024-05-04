@@ -12,4 +12,4 @@ EXPOSE 8000
 
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 
-CMD ["sh", "-c", "alembic upgrade head && python main.py"]
+CMD ["sh", "-c", "python main.py && alembic upgrade head"]
