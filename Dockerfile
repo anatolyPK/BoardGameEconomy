@@ -10,7 +10,7 @@ COPY . /app
 
 EXPOSE 8000
 
-RUN alembic upgrade head
+RUN #alembic upgrade head
 
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 
