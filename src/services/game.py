@@ -8,6 +8,8 @@ class GameSearchService(BaseService):
         return await self.repository.search_games(game_name)
 
 
+
+
 class GameDownloaderService(BaseService):
     async def download_games(self, start: int, end: int, step: int = 100):
         if start == 0:
@@ -16,6 +18,9 @@ class GameDownloaderService(BaseService):
             raise ValueError
         games = await BoardGameScraper.scrape_games(start, end, step)
         await self.repository.add_game_in_db(games)
+
+    async def get_max_bgg(self):
+        return await self.repository.get_max_bgg_id()
 
 
 game_downloader = GameDownloaderService(repository=game_downloader_repository)

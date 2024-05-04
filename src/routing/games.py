@@ -19,6 +19,11 @@ async def game_search(game_name: str, user: User = Depends(current_active_user))
     return await game_searcher.search_game(game_name=game_name)
 
 
+@router.get("/game/max_bgg")
+async def game_max_bgg(user: User = Depends(current_active_user)):
+    return await game_downloader.get_max_bgg()
+
+
 @router.post("/games", status_code=status.HTTP_200_OK)
 async def download_games(start: int, end: int, background_tasks: BackgroundTasks,
                          user: User = Depends(current_active_user)  # add only admin
