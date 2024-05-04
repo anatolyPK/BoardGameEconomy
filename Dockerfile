@@ -10,8 +10,6 @@ COPY . /app
 
 EXPOSE 8000
 
-RUN alembic upgrade head
-
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 
-CMD ["python", "main.py"]
+CMD ["sh", "-c", "alembic upgrade head && python main.py"]
