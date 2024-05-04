@@ -43,5 +43,6 @@ def upgrade():
                    ]
                    )
 
+
 def downgrade() -> None:
     pass
