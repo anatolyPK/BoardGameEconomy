@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, status
+from sqlalchemy import select
 
-from ..models.base import User
+from config.db.database import db_helper
+from ..models.base import User, Role
 from ..schemas.game import GameSearchSchema
 from ..services.game import game_downloader, game_searcher
 from ..utils.auth.manager import current_active_user
@@ -26,3 +28,11 @@ async def download_games(start: int, end: int, background_tasks: BackgroundTasks
     """
     background_tasks.add_task(game_downloader.download_games, start=start, end=end)
     return {"message": "Задача по загрузке игр запущена."}
+
+
+@router.get("/db")
+async def test_db():
+    async with db_helper.get_db_session_context() as session:
+        stmt = select(Role)
+        row = await session.execute(stmt)
+        return row.scalars().all()
