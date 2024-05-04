@@ -17,9 +17,7 @@ if config.config_file_name is not None:
 
 from src.config.db.database import settings_db, ConfigDataBase
 
-
 from src.models.base import User, Role, Game, GameRuName, GameTransaction, Base
-
 
 
 config = context.config
