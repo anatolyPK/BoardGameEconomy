@@ -8,8 +8,6 @@ class GameSearchService(BaseService):
         return await self.repository.search_games(game_name)
 
 
-
-
 class GameDownloaderService(BaseService):
     async def download_games(self, start: int, end: int, step: int = 100):
         if start == 0:

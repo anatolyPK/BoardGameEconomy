@@ -12,7 +12,7 @@ class GeneralInfoSchema(BaseModel):
     average_price_of_game_in_stock: int
     amount_spent: int
 
-    game_transactions: GameTransactionsSchema
+    game_transactions: Optional[GameTransactionsSchema]
 
 
 class ExtendedStatsSchema:
