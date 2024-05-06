@@ -9,7 +9,7 @@ from ..utils.auth.manager import current_active_user
 
 
 router = APIRouter(
-    tags=['Board Game Transactions'],
+    tags=['game transactions'],
 )
 
 

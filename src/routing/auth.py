@@ -33,12 +33,7 @@ router.include_router(
 )
 
 
-@router.get("/authenticated-route")
+@router.get("/authenticated-route",
+            tags=["auth"])
 async def authenticated_route(user: User = Depends(current_active_user)):
     return {"message": f"Hello {user.email}!"}
-
-
-@router.get("/auth/verify", tags=['auth'])
-async def verify_from_email(request: Request, token: str):
-    return {"request": request, "token": token}
-

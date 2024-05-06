@@ -8,7 +8,7 @@ from ..utils.auth.manager import current_active_user
 
 
 router = APIRouter(
-    tags=['Stats'],
+    tags=['stats'],
 )
 
 
@@ -16,3 +16,8 @@ router = APIRouter(
             response_model=GeneralInfoSchema)
 async def general_stats(user: User = Depends(current_active_user)):
     return await game_transaction_service.get_users_game_info(user)
+
+
+@router.get("/info")
+async def extended_stats(user: User = Depends(current_active_user)):
+    return {'info': "route in progress"}

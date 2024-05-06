@@ -12,6 +12,8 @@ class GameDownloaderService(BaseService):
     async def download_games(self, start: int, end: int, step: int = 100):
         if start == 0:
             start = await self.repository.get_max_bgg_id()
+            if not start:
+                start = 0
         if start >= end or end - start > 50000:
             raise ValueError
         games = await BoardGameScraper.scrape_games(start, end, step)

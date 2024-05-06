@@ -7,23 +7,25 @@ from ..schemas.game import GameSearchSchema
 from ..services.game import game_downloader, game_searcher
 from ..utils.auth.manager import current_active_user, current_superuser
 
-router = APIRouter(
-    tags=['Game Search'],
-)
+router = APIRouter()
 
 
 @router.get("/game/search",
+            tags=['game search'],
             response_model=GameSearchSchema)
 async def game_search(game_name: str, user: User = Depends(current_active_user)):
     return await game_searcher.search_game(game_name=game_name)
 
 
-@router.get("/game/max_bgg")
-async def game_max_bgg(user: User = Depends(current_active_user)):
+@router.get("/game/max_bgg",
+            tags=['for debugging'])
+async def game_max_bgg(user: User = Depends(current_superuser)):
     return await game_downloader.get_max_bgg()
 
 
-@router.post("/games", status_code=status.HTTP_200_OK)
+@router.post("/games",
+             tags=['for debugging'],
+             status_code=status.HTTP_200_OK)
 async def download_games(start: int, end: int, background_tasks: BackgroundTasks,
                          user: User = Depends(current_superuser)  # add only admin
                          ):
@@ -31,11 +33,14 @@ async def download_games(start: int, end: int, background_tasks: BackgroundTasks
     Подгружает игры с bgg. Если не указывать start, то берется максимлаьное значение bgg_id из БД
     """
     background_tasks.add_task(game_downloader.download_games, start=start, end=end)
-    return {"message": "Задача по загрузке игр запущена."}
+    max_bgg_id = await game_downloader.get_max_bgg()
+    return {"message": "Задача по загрузке игр запущена.",
+            "max_bgg_id": max_bgg_id}
 
 
-@router.get("/db")
-async def test_db():
+@router.get("/db",
+            tags=['for debugging'])
+async def test_db(user: User = Depends(current_superuser)):
     async with db_helper.get_db_session_context() as session:
         stmt = select(Role)
         row = await session.execute(stmt)
