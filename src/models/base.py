@@ -62,8 +62,8 @@ class Game(Base):
 
     bgg_id: Mapped[int] = mapped_column(unique=True)
     name_en: Mapped[str] = mapped_column(String(128))
-    description: Mapped[str] = mapped_column(String(2048))
     image: Mapped[str] = mapped_column(String(256), nullable=True)
+    description: Mapped[str] = mapped_column(String(2048), nullable=True)
 
     yearpublished: Mapped[int] = mapped_column(nullable=True)
     minplayers: Mapped[int] = mapped_column(nullable=True)
