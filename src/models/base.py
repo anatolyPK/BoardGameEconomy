@@ -95,7 +95,7 @@ class GameTransaction(Base):
     selling_date: Mapped[date] = mapped_column(nullable=True)
     selling_price: Mapped[float] = mapped_column(nullable=True)
 
-    description: Mapped[str] = mapped_column(String(128))
+    description: Mapped[str] = mapped_column(String(128), nullable=True)
 
     user: Mapped['User'] = relationship(back_populates='game_transactions')
     game: Mapped['Game'] = relationship(back_populates='games_transactions')
