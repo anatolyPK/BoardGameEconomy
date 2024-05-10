@@ -28,7 +28,7 @@ class GameTransactionService(BaseService):
         await self.repository.delete(id=pk, user_id=user.id)
 
     async def get_users_board_games_transactions(self, user: User) -> GameTransactionsSchema:
-        result_orm = await self.repository.get_multi(user_id=user.id)
+        result_orm = await self.repository.get_user_transactions(user_id=user.id)
         result_dto = [GameTransactionSelectedGameSchema.model_validate(game, from_attributes=True) for game in result_orm]
         return GameTransactionsSchema(games=result_dto)
 

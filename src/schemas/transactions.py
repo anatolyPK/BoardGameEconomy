@@ -6,10 +6,14 @@ from pydantic import BaseModel
 from datetime import date
 
 
+class GameRuName(BaseModel):
+    name_ru: str
+
+
 class BaseGameSchema(BaseModel):
     description: str
+    names_ru_values: list[GameRuName]
     name_en: str
-    name_ru: str
     image: Optional[str] = None
 
     yearpublished: Optional[int] = None

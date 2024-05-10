@@ -57,6 +57,8 @@ class GameNameRuRepository(SqlAlchemyRepository):
             instance = self.model(name_ru=game_ru_name, game_id=game_id)
             session.add(instance)
 
+    # async def get_
+
 
 game_downloader_repository = GameRepository(model=Game,
                                         db_session=db_helper.get_db_session_context)

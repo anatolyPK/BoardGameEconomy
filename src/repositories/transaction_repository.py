@@ -1,28 +1,34 @@
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload, selectinload, contains_eager
 
 from exceptions import UnauthorizedTransactionError
-from models.base import GameTransaction
+from models.base import GameTransaction, Game
 from src.config.db.database import db_helper
 from src.repositories.sqlalchemy_repository import SqlAlchemyRepository, ModelType, UpdateSchemaType
 from src.schemas.transactions import GameAddTransactionSchema, GameTransactionPatchSchema
 
 
 class GameRepository(SqlAlchemyRepository[ModelType, GameAddTransactionSchema, GameTransactionPatchSchema]):
-    async def get_multi(
+    async def get_user_transactions(
             self,
+            user_id: int,
             order: str = "id",
             limit: int = 100,
             offset: int = 0,
-            **filters
+
     ) -> list[ModelType]:
-        return await super().get_multi(order=order,
-                                       limit=limit,
-                                       offset=offset,
-                                       joinedload_type=selectinload,
-                                       joinedload_column=self.model.game,
-                                       **filters)
+        async with self._session() as session:
+            stmt = select(self.model)
+            # stmt = stmt.options(selectinload(self.model.game))
+            stmt = stmt.join(self.model.game).join(Game.names_ru_values)
+            stmt = stmt.options(contains_eager(self.model.game).contains_eager(Game.names_ru_values))
+
+            stmt = stmt.filter(self.model.user_id == user_id).order_by(order).limit(limit).offset(offset)
+            row = await session.execute(stmt)
+            unique_row = row.unique().scalars().all()
+            print(unique_row)
+            return unique_row
 
     async def update(self, data: UpdateSchemaType, pk: int) -> ModelType:
         async with self._session() as session:
