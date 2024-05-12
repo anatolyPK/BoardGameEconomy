@@ -14,6 +14,11 @@ router = APIRouter()
             tags=['game search'],
             response_model=GameSearchSchema)
 async def game_search(game_name: str, user: User = Depends(current_active_user)):
+    """
+    Осуществляет поиск настольных игр по имени game_name
+
+    Возвращает GameSearchSchema объект
+    """
     return await game_searcher.search_game(game_name=game_name)
 
 

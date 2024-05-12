@@ -20,14 +20,11 @@ class GameRepository(SqlAlchemyRepository[ModelType, GameAddTransactionSchema, G
     ) -> list[ModelType]:
         async with self._session() as session:
             stmt = select(self.model)
-            # stmt = stmt.options(selectinload(self.model.game))
             stmt = stmt.join(self.model.game).join(Game.names_ru_values)
             stmt = stmt.options(contains_eager(self.model.game).contains_eager(Game.names_ru_values))
-
             stmt = stmt.filter(self.model.user_id == user_id).order_by(order).limit(limit).offset(offset)
             row = await session.execute(stmt)
             unique_row = row.unique().scalars().all()
-            print(unique_row)
             return unique_row
 
     async def update(self, data: UpdateSchemaType, pk: int) -> ModelType:

@@ -33,6 +33,7 @@ class BaseGameTransactionSchema(BaseModel):
 
 
 class GameTransactionSelectedGameSchema(BaseGameTransactionSchema):
+    id: int
     game: BaseGameSchema
 
 
@@ -41,6 +42,7 @@ class GameTransactionsSchema(BaseModel):
 
 
 class GameTransactionSchema(BaseGameTransactionSchema):
+    id: int
     game_id: int
 
 
@@ -53,7 +55,7 @@ class GameAddTransactionWithUserSchema(GameAddTransactionSchema):
 
 
 class GameTransactionPatchSchema(BaseGameTransactionSchema):
-    pass
+    id: int
 
 
 class GameTransactionPatchTransactionWithUserSchema(GameTransactionPatchSchema):
