@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends
 
-
+from dependencies.user import get_current_active_user
 from ..schemas.portfolio import GeneralInfoSchema
 from ..services.game_transaction import game_transaction_service
 from ..models.base import User
-from ..utils.auth.manager import current_active_user
 
 
 router = APIRouter(
-    tags=['stats'],
+    tags=["stats"],
 )
 
 
-@router.get("/",
-            response_model=GeneralInfoSchema)
-async def general_stats(user: User = Depends(current_active_user)):
+@router.get("/", response_model=GeneralInfoSchema)
+async def general_stats(user: User = Depends(get_current_active_user)):
     """
     Get general user stats
 
@@ -26,7 +24,7 @@ async def general_stats(user: User = Depends(current_active_user)):
 
 
 @router.get("/info")
-async def extended_stats(user: User = Depends(current_active_user)):
+async def extended_stats(user: User = Depends(get_current_active_user)):
     """
     Get extended user stats
 
@@ -35,4 +33,4 @@ async def extended_stats(user: User = Depends(current_active_user)):
 
     Returns an info placeholder for now.
     """
-    return {'info': "route in progress"}
+    return {"info": "route in progress"}

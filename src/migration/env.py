@@ -5,6 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from src.config.db.database import settings_db
+
+from src.models.base import Base
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -15,17 +19,14 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-from src.config.db.database import settings_db, ConfigDataBase
-
-from src.models.base import User, Role, Game, GameRuName, GameTransaction, Base
-
-
 config = context.config
 
 section = config.config_ini_section
 
 
-config.set_section_option(section, 'sqlalchemy.url', settings_db.database_url + '?async_fallback=True')
+config.set_section_option(
+    section, "sqlalchemy.url", settings_db.database_url + "?async_fallback=True"
+)
 config.set_section_option(section, "POSTGRES_HOST", settings_db.POSTGRES_HOST)
 config.set_section_option(section, "POSTGRES_PORT", settings_db.POSTGRES_PORT)
 config.set_section_option(section, "POSTGRES_USER", settings_db.POSTGRES_USER)
@@ -79,9 +80,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

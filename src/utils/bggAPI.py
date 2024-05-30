@@ -1,22 +1,20 @@
 import asyncio
-import datetime
 import aiohttp
 import xml.etree.ElementTree as ET
 
-from sqlalchemy import select
 
-from config.db.database import db_helper
 from exceptions import GamesAreOver
-from models.base import Game
 from schemas.bggAPI_games import GameInfoSchema
 
 
 class BoardGameScraper:
-    base_url = 'https://api.geekdo.com/xmlapi/boardgame/'
+    base_url = "https://api.geekdo.com/xmlapi/boardgame/"
 
     @classmethod
-    async def scrape_games(cls, start: int = 1, end: int = 500_000, step: int = 100) -> list[GameInfoSchema]:
-        print(f'{start} {end} {step}')
+    async def scrape_games(
+        cls, start: int = 1, end: int = 500_000, step: int = 100
+    ) -> list[GameInfoSchema]:
+        print(f"{start} {end} {step}")
         async with aiohttp.ClientSession() as session:
             games_info = []
             while start < end:
@@ -31,10 +29,10 @@ class BoardGameScraper:
 
     @classmethod
     async def _fetch_game_info(cls, session, start, step):
-        print(f'START {start} STEP {step}')
-        game_ids = list(range(start, start+step))
-        ids_string = ','.join(str(game_id) for game_id in game_ids)
-        url = f'{cls.base_url}{ids_string}'
+        print(f"START {start} STEP {step}")
+        game_ids = list(range(start, start + step))
+        ids_string = ",".join(str(game_id) for game_id in game_ids)
+        url = f"{cls.base_url}{ids_string}"
         async with session.get(url) as response:
             return await response.text()
 
@@ -43,7 +41,7 @@ class BoardGameScraper:
         games_info = []
         for xml in responses:
             root = ET.fromstring(xml)
-            for boardgame in root.findall('boardgame'):
+            for boardgame in root.findall("boardgame"):
                 try:
                     game_info = await cls.parse_game_info(boardgame)
                     if game_info:
@@ -59,9 +57,17 @@ class BoardGameScraper:
         if '<error message="Item not found"/>' in boardgame:
             raise GamesAreOver
         try:
-            cyrillic_names = [name.text for name in boardgame.findall('.//name') if
-                              any(cyrillic in name.text for cyrillic in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
-                              and all(ukrainan.lower() not in name.text.lower() for ukrainan in 'ҐЄІЇЇ̈')]
+            cyrillic_names = [
+                name.text
+                for name in boardgame.findall(".//name")
+                if any(
+                    cyrillic in name.text
+                    for cyrillic in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+                )
+                and all(
+                    ukrainan.lower() not in name.text.lower() for ukrainan in "ҐЄІЇЇ̈"
+                )
+            ]
             if cyrillic_names:
                 return GameInfoSchema(
                     bgg_id=int(boardgame.attrib.get("objectid")),
@@ -72,12 +78,10 @@ class BoardGameScraper:
                     yearpublished=boardgame.find(".//yearpublished").text,
                     playingtime=boardgame.find(".//playingtime").text,
                     minplayers=boardgame.find(".//minplayers").text,
-                    maxplayers=boardgame.find(".//maxplayers").text
+                    maxplayers=boardgame.find(".//maxplayers").text,
                 )
         except TypeError:
             return
-
-
 
 
 # async def main():

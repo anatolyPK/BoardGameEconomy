@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from schemas.transactions import BaseGameTransactionSchema, GameTransactionSelectedGameSchema, GameTransactionsSchema
+from schemas.transactions import GameTransactionsSchema
 
 
 class GeneralInfoSchema(BaseModel):
@@ -15,5 +15,4 @@ class GeneralInfoSchema(BaseModel):
     game_transactions: Optional[GameTransactionsSchema]
 
 
-class ExtendedStatsSchema:
-    ...
+class ExtendedStatsSchema: ...

@@ -1,11 +1,9 @@
-from typing import Type, TypeVar, Optional, Generic
+from typing import Type, TypeVar, Optional
 
-import sqlalchemy
 from pydantic import BaseModel
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from models.base import Base
 from repositories.base_repository import AbstractRepository
@@ -15,13 +13,14 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, model: Type[ModelType], db_session: AsyncSession):
         self._session = db_session
         self.model = model
 
     async def create(self, data: CreateSchemaType) -> ModelType:
         async with self._session() as session:
+            print(data.dict())
             instance = self.model(**data.dict())
             session.add(instance)
             await session.commit()
@@ -30,7 +29,12 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
 
     async def update(self, data: UpdateSchemaType, **filters) -> ModelType:
         async with self._session() as session:
-            stmt = update(self.model).values(**data.dict()).filter_by(**filters).returning(self.model)
+            stmt = (
+                update(self.model)
+                .values(**data.dict())
+                .filter_by(**filters)
+                .returning(self.model)
+            )
             res = await session.execute(stmt)
             await session.commit()
             return res.scalar_one()
@@ -39,7 +43,9 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
         async with self._session() as session:
             result = await session.execute(delete(self.model).filter_by(**filters))
             if result.rowcount == 0:
-                raise NoResultFound("Нет записей, соответствующих предоставленным фильтрам.")
+                raise NoResultFound(
+                    "Нет записей, соответствующих предоставленным фильтрам."
+                )
             await session.commit()
 
     async def get_single(self, **filters) -> Optional[ModelType] | None:
@@ -48,13 +54,13 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
             return row.scalar_one_or_none()
 
     async def get_multi(
-            self,
-            order: str = "id",
-            limit: int = 100,
-            offset: int = 0,
-            joinedload_type=None,
-            joinedload_column=None,
-            **filters
+        self,
+        order: str = "id",
+        limit: int = 100,
+        offset: int = 0,
+        joinedload_type=None,
+        joinedload_column=None,
+        **filters,
     ) -> list[ModelType]:
         async with self._session() as session:
             stmt = select(self.model)

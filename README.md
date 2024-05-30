@@ -18,6 +18,7 @@ BoardGame Economy API - это RESTful API на базе FastAPI для мони
 - [Alembic](https://alembic.sqlalchemy.org) 
 - [PostgreSQL](https://www.postgresql.org) 
 - [Docker](https://www.docker.com) 
+- [Ruff](https://docs.astral.sh/ruff/tutorial/) 
 
 ## Начало работы
 ### Запуск через Docker

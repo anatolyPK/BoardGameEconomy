@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -13,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
     async_sessionmaker,
-    async_scoped_session
+    async_scoped_session,
 )
 
 # from models.games import Game
@@ -31,7 +30,7 @@ class ConfigDataBase(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: str
     POSTGRES_DB: str
-    DB_ECHO_LOG: bool = False
+    DB_ECHO: bool
 
     @property
     def database_url(self) -> Optional[PostgresDsn]:
@@ -42,20 +41,16 @@ class ConfigDataBase(BaseSettings):
 
 
 class DatabaseHelper:
-    def __init__(self, url: str, echo: bool = True):
+    def __init__(self, url: str, echo: bool):
         self.engine = create_async_engine(url=url, echo=echo)
 
         self.session_factory = async_sessionmaker(
-            bind=self.engine,
-            autoflush=False,
-            autocommit=False,
-            expire_on_commit=False
+            bind=self.engine, autoflush=False, autocommit=False, expire_on_commit=False
         )
 
     def get_scope_session(self):
         return async_scoped_session(
-            session_factory=self.session_factory,
-            scopefunc=current_task
+            session_factory=self.session_factory, scopefunc=current_task
         )
 
     async def create_db_and_tables(self):
@@ -67,7 +62,7 @@ class DatabaseHelper:
         session: AsyncSession = self.session_factory()
         try:
             yield session
-        except exc.SQLAlchemyError as error:
+        except exc.SQLAlchemyError:
             await session.rollback()
             raise
         finally:
@@ -78,7 +73,7 @@ class DatabaseHelper:
         session: AsyncSession = self.session_factory()
         try:
             yield session
-        except exc.SQLAlchemyError as error:
+        except exc.SQLAlchemyError:
             await session.rollback()
             raise
         finally:
@@ -86,6 +81,6 @@ class DatabaseHelper:
 
 
 settings_db = ConfigDataBase()
-db_helper = DatabaseHelper(settings_db.database_url, settings_db.DB_ECHO_LOG)
+db_helper = DatabaseHelper(settings_db.database_url, settings_db.DB_ECHO)
 
 # asyncio.run(db_helper.create_db_and_tables())

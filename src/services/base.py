@@ -4,7 +4,6 @@ from schemas.base import PyModel
 
 
 class BaseService:
-
     def __init__(self, repository: AbstractRepository) -> None:
         self.repository: AbstractRepository = repository
 

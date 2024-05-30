@@ -12,4 +12,3 @@ class GameSchema(BaseModel):
 
 class GameSearchSchema(BaseModel):
     games: Optional[list[GameSchema]]
-

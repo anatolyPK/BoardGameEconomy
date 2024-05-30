@@ -15,39 +15,39 @@ class GameInfoSchema(BaseModel):
     minplayers: Optional[int] = None
     maxplayers: Optional[int] = None
 
-    @field_validator('description')
+    @field_validator("description")
     @classmethod
     def validate_description_length(cls, v):
         return cls.cut_string(v, 2048)
 
-    @field_validator('name_en')
+    @field_validator("name_en")
     @classmethod
     def validate_name_en_length(cls, v):
         return cls.cut_string(v, 128)
 
-    @field_validator('name_ru')
+    @field_validator("name_ru")
     @classmethod
     def validate_name_ru_length(cls, v):
         for numb in range(len(v)):
             v[numb] = cls.cut_string(v[numb], 128)
         return v
 
-    @field_validator('yearpublished')
+    @field_validator("yearpublished")
     @classmethod
     def validate_yearpublished_int(cls, v):
         return cls.int_maker(v)
 
-    @field_validator('playingtime')
+    @field_validator("playingtime")
     @classmethod
     def validate_playingtime_int(cls, v):
         return cls.int_maker(v)
 
-    @field_validator('minplayers')
+    @field_validator("minplayers")
     @classmethod
     def validate_minplayers_int(cls, v):
         return cls.int_maker(v)
 
-    @field_validator('maxplayers')
+    @field_validator("maxplayers")
     @classmethod
     def validate_maxplayers_int(cls, v):
         return cls.int_maker(v)
