@@ -18,13 +18,18 @@ class AuthJWT(BaseModel):
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 30
+    reset_token_expire_minutes: int = 60
 
     TOKEN_TYPE_FIELD: str = "type"
     ACCESS_TOKEN_TYPE: str = "access"
     REFRESH_TOKEN_TYPE: str = "refresh"
+    RESET_TOKEN_TYPE: str = "reset"
+
+    RESET_PASSWORD_TOKEN_AUDIENCE: str = "fastapi"
 
 
 class Settings(BaseSettings):
+    HOST: str
     DB_ECHO: bool
     PROJECT_NAME: str
     VERSION: str

@@ -20,7 +20,6 @@ class SqlAlchemyRepository(AbstractRepository):
 
     async def create(self, data: CreateSchemaType) -> ModelType:
         async with self._session() as session:
-            print(data.dict())
             instance = self.model(**data.dict())
             session.add(instance)
             await session.commit()
@@ -31,7 +30,7 @@ class SqlAlchemyRepository(AbstractRepository):
         async with self._session() as session:
             stmt = (
                 update(self.model)
-                .values(**data.dict())
+                .values(**data.dict(exclude_none=True))
                 .filter_by(**filters)
                 .returning(self.model)
             )

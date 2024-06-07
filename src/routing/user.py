@@ -1,21 +1,56 @@
-from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBearer
+import logging
 
-from dependencies.user import get_current_active_user, get_current_token_payload
-from schemas.user import UserSchema, UserRead
+from fastapi import APIRouter, Depends, HTTPException, status
 
-
-# для проверки только
-http_bearer = HTTPBearer(auto_error=False)
-
-router = APIRouter(dependencies=[Depends(http_bearer)])
+from dependencies.user import get_current_active_user, get_current_superuser
+from exceptions import InvalidTokenError
+from models.base import User
+from schemas.user import UserRead, UserInfoFromPayload, UserUpdate, UserSchema
+from services.user import user_service
 
 
-@router.get("/users/me", response_model=UserRead)
-def user_check_self_info(
-    user: UserSchema = Depends(get_current_active_user),
-    payload: dict = Depends(get_current_token_payload),
+logger = logging.getLogger("debug")
+
+router = APIRouter(tags=["users"], prefix="/users")
+
+
+@router.get("/me", response_model=UserRead)
+async def user_check_self_info(
+    user: UserInfoFromPayload = Depends(get_current_active_user),
 ):
-    iat = payload.get("iat")
+    return UserRead(logged_in_at=user.iat, **user.dict())
 
-    return UserRead(**user.dict(), logged_in_at=iat)
+
+@router.patch("/me", response_model=UserRead)
+async def patch_current_user(
+    new_users_data: UserUpdate,
+    user: UserInfoFromPayload = Depends(get_current_active_user),
+):
+    updated_user: User = await user_service.update(
+        pk=user.id, new_user_data=new_users_data
+    )
+    user_read_dict = updated_user.__dict__
+    user_read_dict.update({"logged_in_at": user.iat})
+    return UserRead(**user_read_dict)
+
+
+@router.get("/{id}", response_model=UserRead, response_model_exclude_none=True)
+async def check_user_info(
+    id: str,
+    user: UserInfoFromPayload = Depends(get_current_superuser),
+):
+    try:
+        user_info: UserSchema = await user_service.get_user(id=id)
+        return UserRead(**user_info.dict())
+    except InvalidTokenError as ex:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=ex.message)
+
+
+@router.patch("/{id}", response_model=UserRead, response_model_exclude_none=True)
+async def patch_user(
+    id: str,
+    new_users_data: UserUpdate,
+    user: UserInfoFromPayload = Depends(get_current_superuser),
+):
+    updated_user: User = await user_service.update(pk=id, new_user_data=new_users_data)
+    return UserRead.from_orm(updated_user)

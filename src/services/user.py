@@ -1,14 +1,28 @@
-from fastapi import HTTPException, status
-from sqlalchemy.exc import IntegrityError
+import uuid
 
+from models.base import User
 from repositories.user import user_repository
-from schemas.auth import UserCreate, UserCreateSchemeForDB
-from schemas.user import UserSchema
+from schemas.auth import UserCreate, UserCreateSchemeForDB, NewUserPassword
+from schemas.user import UserSchema, UserUpdate, UserUpdateWithHashedPassword
 from services.base import BaseService
-from utils.auth import hash_password
+from utils.security import hash_password
 
 
 class UserService(BaseService):
+    async def update(self, pk: uuid.UUID, new_user_data: UserUpdate) -> User:
+        hashed_password = None
+        if new_user_data.password is not None:
+            hashed_password = hash_password(new_user_data.password)
+        updated_date = UserUpdateWithHashedPassword(
+            **new_user_data.dict(), hashed_password=hashed_password
+        )
+        return await self.repository.update(updated_date, id=pk)
+
+    async def set_new_user_password(self, user: UserSchema, new_password: str):
+        hashed_password = hash_password(new_password)
+        update_data = NewUserPassword(hashed_password=str(hashed_password))
+        await self.repository.update(update_data, id=user.id)
+
     async def get_user(  # REFACTOR
         self, email: str = None, id: str = None
     ) -> UserSchema:
@@ -19,13 +33,7 @@ class UserService(BaseService):
 
     async def create_user(self, user_data: UserCreate):
         users_data_for_db = self._convert_model_in_db_models(user_data)
-        try:
-            return await self.repository.create(users_data_for_db)
-        except IntegrityError as e:
-            message = "A conflict occurred during the operation."
-            if "unique constraint" in str(e.orig).lower():
-                message = "A user with these details already exists."
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=message)
+        return await self.repository.create(users_data_for_db)
 
     @staticmethod
     def _convert_model_in_db_models(user_data: UserCreate) -> UserCreateSchemeForDB:

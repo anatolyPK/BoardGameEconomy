@@ -1,12 +1,18 @@
-from fastapi import APIRouter, Depends, Response, HTTPException, status
-from sqlalchemy.exc import NoResultFound
+import logging
 
-from dependencies.user import get_current_user_for_refresh, get_current_user
+from fastapi import APIRouter, Depends, Response, HTTPException, status
+from pydantic import EmailStr
+from sqlalchemy.exc import NoResultFound, IntegrityError
+
+from dependencies.user import (
+    get_current_user_for_refresh,
+    get_current_user_from_access_token_payload,
+)
+from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect
 from schemas.user import UserSchema, BaseUserSchema
 from dependencies.auth import (
     validate_auth_user,
     verify_fingerprint,
-    create_tokens,
     extract_refresh_token_from_cookie,
 )
 from services.auth import auth_service
@@ -14,9 +20,9 @@ from services.user import user_service
 from ..schemas.auth import AccessTokenInfo, UserCreate
 
 
-router = APIRouter(
-    tags=["auth"],
-)
+logger = logging.getLogger("debug")
+
+router = APIRouter(tags=["auth"], prefix="/auth")
 
 
 @router.post("/login", response_model=AccessTokenInfo)
@@ -25,8 +31,7 @@ async def auth_user_issue_jwt(
     user: UserSchema = Depends(validate_auth_user),
     fingerprint: str = Depends(verify_fingerprint),
 ):
-    tokens = await create_tokens(user=user, fingerprint=fingerprint)
-
+    tokens = await auth_service.create_tokens(user=user, fingerprint=fingerprint)
     response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return AccessTokenInfo(access_token=tokens.access_token)
 
@@ -34,7 +39,7 @@ async def auth_user_issue_jwt(
 @router.post("/logout", status_code=200)
 async def auth_user_logout(
     response: Response,
-    user: UserSchema = Depends(get_current_user),
+    user: UserSchema = Depends(get_current_user_from_access_token_payload),
     refresh_token_from_cookie: str = Depends(extract_refresh_token_from_cookie),
     fingerprint: str = Depends(verify_fingerprint),
 ):
@@ -42,9 +47,15 @@ async def auth_user_logout(
     Клиентская сторона самостоятельно удаляет access_token из заголовка!
     """
     response.delete_cookie(key="refresh_token", httponly=True)
-    await auth_service.delete_refresh_token(
-        user=user, refresh_token=refresh_token_from_cookie, fingerprint=fingerprint
-    )
+    try:
+        await auth_service.delete_refresh_token(
+            user=user, refresh_token=refresh_token_from_cookie, fingerprint=fingerprint
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Refresh token does not exist in db",
+        )
 
 
 @router.post("/refresh", response_model=AccessTokenInfo)
@@ -55,6 +66,7 @@ async def auth_refresh_jwt(
     user: UserSchema = Depends(get_current_user_for_refresh),
 ):
     try:
+        logger.debug(user)
         await auth_service.delete_refresh_token(
             user=user, refresh_token=refresh_token_from_cookie, fingerprint=fingerprint
         )
@@ -63,7 +75,7 @@ async def auth_refresh_jwt(
             status_code=status.HTTP_401_UNAUTHORIZED,  # исправить
             detail="Invalid username or password",  # добавить больше ошибок
         )
-    tokens = await create_tokens(user=user, fingerprint=fingerprint)
+    tokens = await auth_service.create_tokens(user=user, fingerprint=fingerprint)
     response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return AccessTokenInfo(access_token=tokens.access_token)
 
@@ -72,5 +84,43 @@ async def auth_refresh_jwt(
 async def auth_register_user(
     user_data: UserCreate,
 ):
-    created_user = await user_service.create_user(user_data)
-    return created_user
+    try:
+        created_user = await user_service.create_user(user_data)
+        return created_user
+    except IntegrityError as e:
+        message = "A conflict occurred during the operation."
+        if "unique constraint" in str(e.orig).lower():
+            message = "A user with these details already exists."
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=message)
+
+
+@router.post("/forgot_password", status_code=200)
+async def auth_forgot_password(
+    email: EmailStr,
+):
+    try:
+        reset_token = await auth_service.create_reset_token_if_forgot_password(email)
+    except UserEmailDoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,  # исправить
+            detail="Invalid email",
+        )
+
+    return {"reset_token": reset_token}
+
+
+@router.post(
+    "/reset_password",
+    status_code=200,
+    responses={
+        200: {"description": "Successful reset"},
+        401: {"description": ResetTokenPasswordIncorrect().message},
+    },
+)
+async def auth_reset_password(new_password: str, reset_token: str):
+    try:
+        await auth_service.validate_and_set_new_user_password(
+            reset_token=reset_token, new_password=new_password
+        )
+    except ResetTokenPasswordIncorrect as ex:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=ex.message)

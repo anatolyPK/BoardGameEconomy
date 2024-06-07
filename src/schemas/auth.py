@@ -1,11 +1,20 @@
 import uuid
 from datetime import datetime, timezone, timedelta
-from typing import Optional
 
-from fastapi_users import schemas
 from pydantic import EmailStr, BaseModel, field_validator
 
 from config.project_config import settings
+
+
+class NewUserPassword(BaseModel):
+    hashed_password: str
+
+
+class ResetTokenInfo(BaseModel):
+    id: uuid.UUID
+    hashed_password: str
+    aud: str
+    token_type: str
 
 
 class AccessAndRefreshTokens(BaseModel):
@@ -50,12 +59,3 @@ class UserCreateSchemeForDB(BaseModel):
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = False
-
-
-class UserUpdate(schemas.BaseUserUpdate):
-    username: str
-    email: Optional[EmailStr] = None
-    password: Optional[str] = None
-    is_active: Optional[bool] = None
-    is_superuser: Optional[bool] = None
-    is_verified: Optional[bool] = None
