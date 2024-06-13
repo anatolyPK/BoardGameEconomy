@@ -1,15 +1,15 @@
 from sqlalchemy import select, update
 
+from auth.schemas import RefreshTokenCreate
 from models.base import RefreshToken
-from schemas.auth import RefreshTokenCreate
-from src.config.db.database import db_helper
+from core.config.database import db_helper
 from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
 
 
 class AuthRepository(SqlAlchemyRepository):
     async def put_or_refresh_refresh_token(self, refresh_token: RefreshTokenCreate):
         async with self._session() as session:
-            stmt = select(self.model).filter_by(fingerprint=refresh_token.fingerprint)
+            stmt = select(self.model).filter_by(user_id=refresh_token.user_id, fingerprint=refresh_token.fingerprint)
             result = await session.execute(stmt)
             token_from_bd = result.scalar()
 

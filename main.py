@@ -1,9 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
 
-from config.logging import init_logger
-from src.config.project_config import settings
-from src.routing.routes import get_apps_router
+from api.api_v1 import get_apps_router
+from core.config.logging import init_logger
+from core.config.project import settings
 
 
 def get_application() -> FastAPI:

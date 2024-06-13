@@ -1,5 +1,5 @@
 from models.base import User
-from src.config.db.database import db_helper
+from core.config.database import db_helper
 from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
 
 

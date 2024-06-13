@@ -5,10 +5,11 @@ import jwt
 from datetime import datetime, timezone, timedelta
 
 from fastapi import HTTPException
+
+from core.config.project import settings
 from jwt import InvalidTokenError
 from starlette import status
 
-from config.project_config import settings
 
 logger = logging.getLogger("debug")
 

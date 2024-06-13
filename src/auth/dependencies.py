@@ -8,9 +8,9 @@ from starlette import status
 from exceptions import InvalidSalt
 from schemas.user import UserInfoFromPayload
 
-from services.user import user_service
-from utils.jwt import extract_payload_from_token
-from utils.security import validate_password
+from auth.jwt import extract_payload_from_token
+from core.security import validate_password
+from users.services import user_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 

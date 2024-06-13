@@ -1,16 +1,12 @@
 from sqlalchemy.exc import NoResultFound
 from fastapi import APIRouter, Depends, HTTPException
 
-from dependencies.user import get_current_active_user
-from ..exceptions import UnauthorizedTransactionError
-from ..schemas.transactions import (
-    BaseGameTransactionSchema,
-    GameAddTransactionSchema,
-    GameTransactionPatchSchema,
-    GameTransactionsSchema,
-)
-from ..services.game_transaction import game_transaction_service
-from ..models.base import User
+from exceptions import UnauthorizedTransactionError
+from models.base import User
+from schemas.transactions import GameTransactionsSchema, BaseGameTransactionSchema, GameAddTransactionSchema, \
+    GameTransactionPatchSchema
+from services.game_transaction import game_transaction_service
+from users.dependencies import get_current_active_user
 
 
 router = APIRouter(

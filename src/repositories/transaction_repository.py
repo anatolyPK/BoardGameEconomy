@@ -2,9 +2,9 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import contains_eager
 
+from core.config.database import db_helper
 from exceptions import UnauthorizedTransactionError
 from models.base import GameTransaction, Game
-from src.config.db.database import db_helper
 from src.repositories.sqlalchemy_repository import (
     SqlAlchemyRepository,
     ModelType,

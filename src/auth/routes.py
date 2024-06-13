@@ -4,21 +4,13 @@ from fastapi import APIRouter, Depends, Response, HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from dependencies.user import (
-    get_current_user_for_refresh,
-    get_current_user_from_access_token_payload,
-)
+from auth.dependencies import validate_auth_user, verify_fingerprint, extract_refresh_token_from_cookie
+from auth.schemas import AccessTokenInfo, UserCreate
+from auth.services import auth_service
 from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect
 from schemas.user import UserSchema, BaseUserSchema
-from dependencies.auth import (
-    validate_auth_user,
-    verify_fingerprint,
-    extract_refresh_token_from_cookie,
-)
-from services.auth import auth_service
-from services.user import user_service
-from ..schemas.auth import AccessTokenInfo, UserCreate
-
+from users.dependencies import get_current_user_from_access_token_payload, get_current_user_for_refresh
+from users.services import user_service
 
 logger = logging.getLogger("debug")
 

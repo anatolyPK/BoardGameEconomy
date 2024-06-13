@@ -2,16 +2,12 @@ import logging
 
 from fastapi import Depends
 
-from config.project_config import settings
-from dependencies.auth import (
-    extract_refresh_token_from_cookie,
-    get_current_token_payload,
-)
+from auth.dependencies import get_current_token_payload, extract_refresh_token_from_cookie
+from core.config.project import settings
 from schemas.user import UserInfoFromPayload, UserSchema
-from services.user import user_service
-from utils.jwt import validate_token_type
-from utils.users import check_user_status
-
+from auth.jwt import validate_token_type
+from users.services import user_service
+from users.utils import check_user_status
 
 logger = logging.getLogger("debug")
 

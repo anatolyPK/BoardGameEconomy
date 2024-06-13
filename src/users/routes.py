@@ -1,13 +1,12 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from jwt import InvalidTokenError
 
-from dependencies.user import get_current_active_user, get_current_superuser
-from exceptions import InvalidTokenError
 from models.base import User
 from schemas.user import UserRead, UserInfoFromPayload, UserUpdate, UserSchema
-from services.user import user_service
-
+from users.dependencies import get_current_active_user, get_current_superuser
+from users.services import user_service
 
 logger = logging.getLogger("debug")
 

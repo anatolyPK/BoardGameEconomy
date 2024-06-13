@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, status
 from sqlalchemy import select
 
-from config.db.database import db_helper
-from dependencies.user import get_current_active_user, get_current_superuser
-from ..models.base import User, Role
-from ..schemas.game import GameSearchSchema
-from ..services.game import game_downloader, game_searcher
+from core.config.database import db_helper
+from models.base import User, Role
+from schemas.game import GameSearchSchema
+from services.game import game_searcher, game_downloader
+from users.dependencies import get_current_active_user, get_current_superuser
 
 router = APIRouter()
 

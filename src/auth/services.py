@@ -4,19 +4,18 @@ from datetime import timedelta
 
 from pydantic import EmailStr
 
-from config.project_config import settings
+from auth.repository import auth_repository
+from auth.schemas import AccessAndRefreshTokens, RefreshTokenCreate
+from core.config.project import settings
 from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect
-from repositories.auth import auth_repository
-from schemas.auth import RefreshTokenCreate, AccessAndRefreshTokens
 from schemas.user import UserSchema, UserInfoFromPayload
 from services.base import BaseService
-from services.user import user_service
-from utils.jwt import (
+from auth.jwt import (
     validate_token_type,
     create_jwt,
     extract_payload_from_token,
 )
-
+from users.services import user_service
 
 logger = logging.getLogger("debug")
 

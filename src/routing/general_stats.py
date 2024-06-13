@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from dependencies.user import get_current_active_user
-from ..schemas.portfolio import GeneralInfoSchema
-from ..services.game_transaction import game_transaction_service
-from ..models.base import User
+from models.base import User
+from schemas.portfolio import GeneralInfoSchema
+from services.game_transaction import game_transaction_service
+from users.dependencies import get_current_active_user
 
 
 router = APIRouter(

@@ -1,11 +1,14 @@
 import uuid
 
+from fastapi_mail import MessageSchema
+
+from auth.schemas import NewUserPassword, UserCreate, UserCreateSchemeForDB
+from core.config.email import fast_mail
 from models.base import User
-from repositories.user import user_repository
-from schemas.auth import UserCreate, UserCreateSchemeForDB, NewUserPassword
 from schemas.user import UserSchema, UserUpdate, UserUpdateWithHashedPassword
 from services.base import BaseService
-from utils.security import hash_password
+from core.security import hash_password
+from users.repository import user_repository
 
 
 class UserService(BaseService):
@@ -33,7 +36,26 @@ class UserService(BaseService):
 
     async def create_user(self, user_data: UserCreate):
         users_data_for_db = self._convert_model_in_db_models(user_data)
-        return await self.repository.create(users_data_for_db)
+        created_user = await self.repository.create(users_data_for_db)
+
+        template = f"""<html>
+           <body>
+               <p>Для подтверждения вашей учетной записи, пройдите по следующей ссылке:</p>
+               <a href='{1}'>Нажмите здесь, чтобы подтвердить</a>
+           </body>
+       </html>"""
+
+        message = MessageSchema(
+            subject="Подтверждение учетной записи",
+            recipients=[user_data.email],
+            body=template,
+            subtype="html",
+        )
+
+        await fast_mail.send_message(
+            message=message
+        )
+        return created_user
 
     @staticmethod
     def _convert_model_in_db_models(user_data: UserCreate) -> UserCreateSchemeForDB:

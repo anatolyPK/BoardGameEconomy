@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 
 from pydantic import EmailStr, BaseModel, field_validator
 
-from config.project_config import settings
+from core.config.project import settings
 
 
 class NewUserPassword(BaseModel):

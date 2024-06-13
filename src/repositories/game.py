@@ -1,10 +1,10 @@
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
+from core.config.database import db_helper
 from models.base import Game, GameRuName
 from schemas.bggAPI_games import GameInfoSchema
 from schemas.game import GameSearchSchema, GameSchema
-from src.config.db.database import db_helper
 from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
 
 
