@@ -19,6 +19,7 @@ class SqlAlchemyRepository(AbstractRepository):
         self.model = model
 
     async def create(self, data: CreateSchemaType) -> ModelType:
+        print(data)
         async with self._session() as session:
             instance = self.model(**data.dict())
             session.add(instance)

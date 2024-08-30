@@ -3,7 +3,9 @@ from logging.config import dictConfig
 import os
 
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
 log_directory = os.path.join(project_root, "logs")
 
 if not os.path.exists(log_directory):

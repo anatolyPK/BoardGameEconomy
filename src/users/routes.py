@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from jwt import InvalidTokenError
 
 from models.base import User
-from schemas.user import UserRead, UserInfoFromPayload, UserUpdate, UserSchema
 from users.dependencies import get_current_active_user, get_current_superuser
+from users.schemas import UserRead, UserInfoFromPayload, UserUpdate, UserSchema
 from users.services import user_service
 
 logger = logging.getLogger("debug")

@@ -1,5 +1,3 @@
-
-
 class GamesAreOver(Exception):
     """BGG API. Конец списка игр"""
 
@@ -32,5 +30,23 @@ class ResetTokenPasswordIncorrect(Exception):
 
 class InvalidSalt(Exception):
     def __init__(self, message="InvalidSalt"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class EmailExist(Exception):
+    def __init__(self, message="Email already exist"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class LoginExist(Exception):
+    def __init__(self, message="Login already exist"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class UnexpectedError(Exception):
+    def __init__(self, message="UnexpectedError! Already fixing!"):
         self.message = message
         super().__init__(self.message)

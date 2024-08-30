@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone, timedelta
 
-from pydantic import EmailStr, BaseModel, field_validator
+from pydantic import BaseModel, field_validator
 
 from core.config.project import settings
 
@@ -45,17 +45,3 @@ class RefreshTokenCreate(BaseModel):
         return v
 
 
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
-
-class UserCreateSchemeForDB(BaseModel):
-    username: str
-    email: EmailStr
-    hashed_password: str
-    role_id: int = 2
-    is_active: bool = True
-    is_superuser: bool = False
-    is_verified: bool = False

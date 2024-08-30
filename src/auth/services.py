@@ -8,13 +8,13 @@ from auth.repository import auth_repository
 from auth.schemas import AccessAndRefreshTokens, RefreshTokenCreate
 from core.config.project import settings
 from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect
-from schemas.user import UserSchema, UserInfoFromPayload
 from services.base import BaseService
 from auth.jwt import (
     validate_token_type,
     create_jwt,
     extract_payload_from_token,
 )
+from users.schemas import UserInfoFromPayload, UserSchema
 from users.services import user_service
 
 logger = logging.getLogger("debug")

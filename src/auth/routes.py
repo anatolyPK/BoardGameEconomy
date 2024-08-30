@@ -4,13 +4,22 @@ from fastapi import APIRouter, Depends, Response, HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from auth.dependencies import validate_auth_user, verify_fingerprint, extract_refresh_token_from_cookie
-from auth.schemas import AccessTokenInfo, UserCreate
+from auth.dependencies import (
+    validate_auth_user,
+    verify_fingerprint,
+    extract_refresh_token_from_cookie,
+)
+from auth.schemas import AccessTokenInfo
 from auth.services import auth_service
-from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect
-from schemas.user import UserSchema, BaseUserSchema
-from users.dependencies import get_current_user_from_access_token_payload, get_current_user_for_refresh
+from exceptions import UserEmailDoesNotExist, ResetTokenPasswordIncorrect, EmailExist, LoginExist, UnexpectedError
+from models.base import User
+from users.dependencies import (
+    get_current_user_from_access_token_payload,
+    get_current_user_for_refresh,
+)
+from users.schemas import UserSchema, UserRead, UserCreate
 from users.services import user_service
+
 
 logger = logging.getLogger("debug")
 
@@ -72,18 +81,28 @@ async def auth_refresh_jwt(
     return AccessTokenInfo(access_token=tokens.access_token)
 
 
-@router.post("/register", response_model=BaseUserSchema)
+@router.post("/register", response_model=UserRead, response_model_exclude_none=True)
 async def auth_register_user(
     user_data: UserCreate,
 ):
     try:
-        created_user = await user_service.create_user(user_data)
+        created_user: User = await user_service.create_user(user_data)
         return created_user
-    except IntegrityError as e:
-        message = "A conflict occurred during the operation."
-        if "unique constraint" in str(e.orig).lower():
-            message = "A user with these details already exists."
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=message)
+    except LoginExist as ex:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=ex.message,
+        )
+    except EmailExist as ex:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=ex.message,
+        )
+    except UnexpectedError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ex.message,
+        )
 
 
 @router.post("/forgot_password", status_code=200)

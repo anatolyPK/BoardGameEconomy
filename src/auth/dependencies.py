@@ -6,10 +6,10 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from starlette import status
 
 from exceptions import InvalidSalt
-from schemas.user import UserInfoFromPayload
 
 from auth.jwt import extract_payload_from_token
 from core.security import validate_password
+from users.schemas import UserInfoFromPayload
 from users.services import user_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")

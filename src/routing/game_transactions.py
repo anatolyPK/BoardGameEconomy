@@ -3,8 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from exceptions import UnauthorizedTransactionError
 from models.base import User
-from schemas.transactions import GameTransactionsSchema, BaseGameTransactionSchema, GameAddTransactionSchema, \
-    GameTransactionPatchSchema
+from schemas.transactions import (
+    GameTransactionsSchema,
+    BaseGameTransactionSchema,
+    GameAddTransactionSchema,
+    GameTransactionPatchSchema,
+)
 from services.game_transaction import game_transaction_service
 from users.dependencies import get_current_active_user
 

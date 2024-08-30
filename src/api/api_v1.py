@@ -7,9 +7,7 @@ from routing.game_transactions import router as games_transactions
 from routing.games import router as game
 
 
-router = APIRouter(
-    prefix="/api/v1"
-)
+router = APIRouter(prefix="/api/v1")
 
 
 def get_apps_router():

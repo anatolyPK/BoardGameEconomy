@@ -9,7 +9,9 @@ from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
 class AuthRepository(SqlAlchemyRepository):
     async def put_or_refresh_refresh_token(self, refresh_token: RefreshTokenCreate):
         async with self._session() as session:
-            stmt = select(self.model).filter_by(user_id=refresh_token.user_id, fingerprint=refresh_token.fingerprint)
+            stmt = select(self.model).filter_by(
+                user_id=refresh_token.user_id, fingerprint=refresh_token.fingerprint
+            )
             result = await session.execute(stmt)
             token_from_bd = result.scalar()
 

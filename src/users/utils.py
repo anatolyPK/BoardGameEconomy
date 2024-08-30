@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from starlette import status
 
-from schemas.user import UserInfoFromPayload
+from users.schemas import UserInfoFromPayload
 
 
 async def check_user_status(
